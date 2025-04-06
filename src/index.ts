@@ -1,6 +1,4 @@
 import cors from "cors";
-
-
 import dotenv from "dotenv";
 import express, { Request, Response, NextFunction } from "express";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
@@ -49,10 +47,11 @@ dotenv.config();
 const app = express();
 const ec2ip = process.env.EC2_IP;
 const port = process.env.PORT;
+const sessionSecret = process.env.EXPRESS_SESSION_SECRET;
 
 // 공통 응답 메서드 확장 미들웨어
 app.use((req, res, next) => {
-  res.create = (create) => {
+  res.json = (create) => {
     return res.json({
       resultType: "CREATE",
       error: null,
@@ -60,7 +59,7 @@ app.use((req, res, next) => {
     });
   };
 
-  res.success = (success) => {
+  res.json = (success) => {
     return res.json({
       resultType: "SUCCESS",
       error: null,
@@ -68,7 +67,7 @@ app.use((req, res, next) => {
     });
   };
 
-  res.error = ({ errorCode = "unknown", reason = null, data = null }) => {
+  res.json = ({ errorCode = "unknown", reason = null, data = null }) => {
     return res.json({
       resultType: "FAIL",
       error: { errorCode, reason, data },
@@ -96,6 +95,10 @@ app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형
 // 쿠키 파서 설정
 app.use(cookieParser());
 
+// 세션 오류 종료
+if (!sessionSecret) {
+  throw new Error("sessionSecret is not set in .env");
+}
 // 세션 설정
 app.use(
   session({
@@ -104,7 +107,7 @@ app.use(
     },
     resave: false,
     saveUninitialized: false,
-    secret: process.env.EXPRESS_SESSION_SECRET,
+    secret: sessionSecret,
     store: new PrismaSessionStore(prisma, {
       checkPeriod: 2 * 60 * 1000, // 2분마다 만료된 세션
       dbRecordIdIsSessionId: true, // 세션 ID를 데이터베이스 레코드 ID로 사용
@@ -112,6 +115,7 @@ app.use(
     }),
   })
 );
+
 const MONGO_URI = process.env.MONGO_URI;
 if (!MONGO_URI) {
   console.error("MONGO_URI 환경변수가 설정되어 있지 않습니다.");
@@ -174,7 +178,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     return next(err);
   }
 
-  res.status(err.statusCode || 500).error({
+  res.status(err.statusCode || 500).json({
     errorCode: err.errorCode || "unknown",
     reason: err.reason || err.message || null,
     data: err.data || null,

@@ -8,6 +8,7 @@ await esbuild.build({
     outExtension: { ".js": ".cjs" },
     platform: "node",
     target: "node20",
+    sourcemap: true,
     minify: true,
     keepNames: true,
     external: [
