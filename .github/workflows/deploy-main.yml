@@ -49,14 +49,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ssh ggs 'cd /opt/app; npm install'
-          ssh ggs 'cd /opt/app; npm install @esbuild/linux-x64'
-          ssh ggs 'cd /opt/app; npm exec prisma generate'
-          ssh ggs 'cd /opt/app; npm run build'
+          ssh ggs 'cd /opt/app; yarn install'
+          ssh ggs 'cd /opt/app; yarn install @esbuild/linux-x64'
+          ssh ggs 'cd /opt/app; yarn exec prisma generate'
+          ssh ggs 'cd /opt/app; yarn run build'
 
       - name: Apply Prisma schema
         run: |
-          ssh ggs 'cd /opt/app; npm exec prisma db push'
+          ssh ggs 'cd /opt/app; yarn exec prisma db push'
 
       - name: Copy systemd service file
         run: |
@@ -68,7 +68,7 @@ jobs:
             [Service]
             User=${USER}
             WorkingDirectory=/opt/app
-            ExecStart=/usr/bin/npm run start
+            ExecStart=/usr/bin/yarn run start
             Restart=always
             StandardOutput=inherit
             StandardError=inherit
