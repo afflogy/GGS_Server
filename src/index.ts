@@ -45,7 +45,7 @@ import {
 dotenv.config();
 
 const app = express();
-const ec2ip = process.env.EC2_IP;
+const ec2ip = process.env.EC2_IP || "localhost";
 const port = process.env.PORT;
 const sessionSecret = process.env.EXPRESS_SESSION_SECRET;
 
@@ -86,7 +86,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // cors 방식 허용
 // Case1 'Access-Control-Allow-Origin' header..' 특정 프론트엔드 주소 허용 시 : {origin: ["<프론트엔드_주소_및_포트>"],} 처럼 설정해준다.
 // Case2 'Request header field x-auth-token..' 프론트 엔드에서 보내는 header 정보 확인 : {allowedHeaders: ["x-auth-token", ...],}
-app.use(cors({ origin: ["http://${ec2ip}:3000"], allowedHeaders: ["Authorization"]}));
+app.use(cors({ origin: ["http://${ec2ip}:${port}"], allowedHeaders: ["Authorization"]}));
 
 app.use(express.static("public")); // 정적 파일 접근
 app.use(express.json()); // request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)

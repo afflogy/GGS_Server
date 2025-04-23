@@ -2,10 +2,14 @@
   "name": "GGS_Server",
   "type": "module",
   "packageManager": "yarn@4.8.1",
+  "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "prebuild": "yarn install @esbuild/linux-x64",
+    "build": "tsc scripts build.ts",
+    "postbuild": "cp package.json dist/",
+    "start": "node dist/index.js",
+    "api-docs": "swagger-cli bundle ./src/swagger/openai.yaml --outfile build/swagger.yaml --type yaml",
+    "dev": "ts-node src/index.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

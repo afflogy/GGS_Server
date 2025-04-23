@@ -7,3 +7,11 @@ firebase-admin.js
 migration_lock.toml
 prisma/migrations/migration_lock.toml
 
+// zero install 사용시
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
